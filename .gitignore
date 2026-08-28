@@ -1,0 +1,32 @@
+# Binaries and build artifacts
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test artifacts
+.agents/
+.cursor/
+.codex/
+CLAUDE.md
+CODEX.md
+
+# Go workspace file
+go.work
+go.work.sum
