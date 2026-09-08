@@ -1,0 +1,37 @@
+{
+  "name": "cb-ask",
+  "version": "0.1.0",
+  "description": "Enterprise Codebase RAG & Knowledge Graph Agent Setup and Stdio MCP Bridge",
+  "main": "bin/cb-ask.js",
+  "bin": {
+    "cb-ask": "bin/cb-ask.js"
+  },
+  "type": "module",
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node bin/cb-ask.js",
+    "init": "node bin/cb-ask.js init",
+    "test": "node --test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "codebase-rag",
+    "knowledge-graph",
+    "ai-agents",
+    "cursor",
+    "claude",
+    "antigravity",
+    "omp",
+    "vscode"
+  ],
+  "author": "Abbilville",
+  "license": "MIT"
+}
