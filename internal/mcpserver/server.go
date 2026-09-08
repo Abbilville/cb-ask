@@ -5,15 +5,15 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"oss-ask/internal/cbmclient"
-	"oss-ask/internal/idxclient"
+	"cb-ask/internal/cbmclient"
+	"cb-ask/internal/idxclient"
 )
 
-// NewServer creates and initializes an oss-ask MCP server instance.
+// NewServer creates and initializes a cb-ask MCP server instance.
 func NewServer(idx *idxclient.IndexerClient, cbm *cbmclient.CbmClient) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{
-		Name:    "oss-ask",
-		Version: "0.2.0",
+		Name:    "cb-ask",
+		Version: "0.1.0",
 	}, nil)
 
 	RegisterTools(s, idx, cbm)

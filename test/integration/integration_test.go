@@ -8,15 +8,15 @@ import (
 	"testing"
 	"time"
 
-	"oss-ask/internal/idxclient"
-	"oss-ask/internal/workflows"
+	"cb-ask/internal/idxclient"
+	"cb-ask/internal/workflows"
 )
 
 func TestIndexerAndQueryContractIntegration(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// 1. Mock oss-indexer HTTP server that responds with exact JSON-RPC MCP format
+	// 1. Mock cb-indexer HTTP server that responds with exact JSON-RPC MCP format
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Failed to listen: %v", err)
@@ -95,7 +95,7 @@ func TestIndexerAndQueryContractIntegration(t *testing.T) {
 
 	time.Sleep(50 * time.Millisecond)
 
-	// 2. Test idxclient from oss-ask calling oss-indexer
+	// 2. Test idxclient from cb-ask calling cb-indexer
 	client := idxclient.NewIndexerClient("http://127.0.0.1:"+string(rune('0'+serverPort%10)), "")
 	client.Endpoint = "http://127.0.0.1:" + listener.Addr().String()[len("127.0.0.1:"):] + "/mcp"
 

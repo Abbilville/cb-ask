@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"oss-ask/internal/cbmclient"
-	"oss-ask/internal/idxclient"
+	"cb-ask/internal/cbmclient"
+	"cb-ask/internal/idxclient"
 )
 
 // CrossServiceHop represents a single hop in a cross-service communication path.
@@ -30,17 +30,17 @@ type CrossServiceFlowReport struct {
 	Summary       string                  `json:"summary"`
 }
 
-// TraceCrossServiceFlow merges topology data from oss-indexer with AST graph symbols from codebase-memory-mcp.
+// TraceCrossServiceFlow merges topology data from cb-indexer with AST graph symbols from codebase-memory-mcp.
 func TraceCrossServiceFlow(
 	ctx context.Context,
 	idx *idxclient.IndexerClient,
 	cbm *cbmclient.CbmClient,
 	query, sourceRepo, targetRepo, project string,
 ) (*CrossServiceFlowReport, error) {
-	// 1. Fetch architecture overview from oss-indexer
+	// 1. Fetch architecture overview from cb-indexer
 	overview, err := idx.GetArchitectureOverview(ctx, project)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch topology from oss-indexer: %w", err)
+		return nil, fmt.Errorf("failed to fetch topology from cb-indexer: %w", err)
 	}
 
 	var relevantRels []idxclient.RelationDTO
@@ -84,20 +84,53 @@ func TraceCrossServiceFlow(
 			Port:        repoPortMap[strings.ToLower(rel.Target)],
 		}
 
-		// Query AST graph symbols if CBM is available
-		if cbm != nil {
-			callerSyms, _ := cbm.SearchGraph(ctx, ".*api.*|.*client.*|.*fetch.*", rel.Source)
-			if len(callerSyms) > 5 {
-				callerSyms = callerSyms[:5]
-			}
-			hop.CallerCode = callerSyms
+		// 1. First try querying AST graph symbols from local codebase-memory-mcp if available
+		var callerSyms []cbmclient.CbmSymbol
+		var calleeSyms []cbmclient.CbmSymbol
 
-			calleeSyms, _ := cbm.SearchGraph(ctx, ".*handler.*|.*controller.*|.*route.*", rel.Target)
-			if len(calleeSyms) > 5 {
-				calleeSyms = calleeSyms[:5]
-			}
-			hop.CalleeCode = calleeSyms
+		if cbm != nil {
+			callerSyms, _ = cbm.SearchGraph(ctx, ".*api.*|.*client.*|.*fetch.*", rel.Source)
+			calleeSyms, _ = cbm.SearchGraph(ctx, ".*handler.*|.*controller.*|.*route.*", rel.Target)
 		}
+
+		// 2. If local CBM is not installed or returned no symbols, query remote cb-indexer RAG
+		if len(callerSyms) == 0 && idx != nil {
+			if res, err := idx.QueryCodebaseSymbols(ctx, "api", rel.Source, "", 5); err == nil && len(res.Symbols) > 0 {
+				for _, s := range res.Symbols {
+					callerSyms = append(callerSyms, cbmclient.CbmSymbol{
+						Name:          s.Name,
+						QualifiedName: s.QualifiedName,
+						Type:          s.Label,
+						FilePath:      s.FilePath,
+						LineNumber:    s.StartLine,
+					})
+				}
+			}
+		}
+
+		if len(calleeSyms) == 0 && idx != nil {
+			if res, err := idx.QueryCodebaseSymbols(ctx, "handler", rel.Target, "", 5); err == nil && len(res.Symbols) > 0 {
+				for _, s := range res.Symbols {
+					calleeSyms = append(calleeSyms, cbmclient.CbmSymbol{
+						Name:          s.Name,
+						QualifiedName: s.QualifiedName,
+						Type:          s.Label,
+						FilePath:      s.FilePath,
+						LineNumber:    s.StartLine,
+					})
+				}
+			}
+		}
+
+		if len(callerSyms) > 5 {
+			callerSyms = callerSyms[:5]
+		}
+		if len(calleeSyms) > 5 {
+			calleeSyms = calleeSyms[:5]
+		}
+
+		hop.CallerCode = callerSyms
+		hop.CalleeCode = calleeSyms
 
 		hops = append(hops, hop)
 	}
