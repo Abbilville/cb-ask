@@ -15,7 +15,7 @@ func TestMergeAndUnmergeMcpConfig(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	cfgPath := filepath.Join(tmpDir, "mcp.json")
-	servers := buildServerConfigs("http://127.0.0.1:8080")
+	servers := buildServerConfigs("http://127.0.0.1:43770")
 
 	saved, err := MergeMcpConfig(cfgPath, servers)
 	if err != nil {
@@ -34,18 +34,18 @@ func TestMergeAndUnmergeMcpConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, ok := parsed.McpServers["oss-indexer"]; !ok {
-		t.Fatal("Expected oss-indexer in mcpServers")
+	if _, ok := parsed.McpServers["cb-indexer"]; !ok {
+		t.Fatal("Expected cb-indexer in mcpServers")
 	}
-	if _, ok := parsed.McpServers["oss-ask"]; !ok {
-		t.Fatal("Expected oss-ask in mcpServers")
+	if _, ok := parsed.McpServers["cb-ask"]; !ok {
+		t.Fatal("Expected cb-ask in mcpServers")
 	}
 	if _, ok := parsed.McpServers["codebase-memory-mcp"]; !ok {
 		t.Fatal("Expected codebase-memory-mcp in mcpServers")
 	}
 
 	// Test Unmerge
-	_, removed, err := UnmergeMcpConfig(saved, "oss-indexer", "oss-ask")
+	_, removed, err := UnmergeMcpConfig(saved, "cb-indexer", "cb-ask")
 	if err != nil || !removed {
 		t.Fatalf("Unmerge failed (removed: %v, err: %v)", removed, err)
 	}
@@ -56,8 +56,8 @@ func TestMergeAndUnmergeMcpConfig(t *testing.T) {
 	}
 	_ = json.Unmarshal(dataAfter, &parsedAfter)
 
-	if _, ok := parsedAfter.McpServers["oss-indexer"]; ok {
-		t.Fatal("oss-indexer should have been removed")
+	if _, ok := parsedAfter.McpServers["cb-indexer"]; ok {
+		t.Fatal("cb-indexer should have been removed")
 	}
 	if _, ok := parsedAfter.McpServers["codebase-memory-mcp"]; !ok {
 		t.Fatal("codebase-memory-mcp should still be present")

@@ -39,10 +39,11 @@ func MergeMcpConfig(filePath string, servers map[string]any) (string, error) {
 		data["mcpServers"] = mcpServers
 	}
 
-	// Remove legacy oss-mcp and oss-query if present
+	// Remove legacy server keys if present
+	delete(mcpServers, "oss-ask")
+	delete(mcpServers, "oss-indexer")
 	delete(mcpServers, "oss-mcp")
 	delete(mcpServers, "oss-query")
-
 	for name, cfg := range servers {
 		mcpServers[name] = cfg
 	}
@@ -57,6 +58,28 @@ func MergeMcpConfig(filePath string, servers map[string]any) (string, error) {
 	}
 
 	return absPath, nil
+}
+
+func cleanEmptyParentsGo(dir string) {
+	current, err := filepath.Abs(dir)
+	if err != nil {
+		return
+	}
+	cwd, _ := os.Getwd()
+	cwd, _ = filepath.Abs(cwd)
+	home, _ := os.UserHomeDir()
+	home, _ = filepath.Abs(home)
+	for range 3 {
+		if current == "" || current == "." || current == cwd || current == home || filepath.Dir(current) == current {
+			break
+		}
+		entries, err := os.ReadDir(current)
+		if err != nil || len(entries) > 0 {
+			break
+		}
+		_ = os.Remove(current)
+		current = filepath.Dir(current)
+	}
 }
 
 // UnmergeMcpConfig safely removes named servers from an MCP JSON configuration file.
@@ -89,6 +112,13 @@ func UnmergeMcpConfig(filePath string, serverNames ...string) (string, bool, err
 		}
 	}
 
+	// If mcpServers is empty and was the only key, delete file and clean parent directory
+	if len(data) <= 1 && len(mcpServers) == 0 {
+		_ = os.Remove(absPath)
+		cleanEmptyParentsGo(filepath.Dir(absPath))
+		return absPath, true, nil
+	}
+
 	if removedAny {
 		outBytes, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
@@ -98,7 +128,6 @@ func UnmergeMcpConfig(filePath string, serverNames ...string) (string, bool, err
 			return absPath, false, err
 		}
 	}
-
 	return absPath, removedAny, nil
 }
 
