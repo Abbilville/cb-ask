@@ -36,11 +36,11 @@ jobs:
       - name: Build Multi-Platform Binaries
         run: |
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/oss-ask-linux-amd64 ./cmd/oss-ask
-          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/oss-ask-linux-arm64 ./cmd/oss-ask
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/oss-ask-darwin-amd64 ./cmd/oss-ask
-          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/oss-ask-darwin-arm64 ./cmd/oss-ask
-          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/oss-ask-windows-amd64.exe ./cmd/oss-ask
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/cb-ask-linux-amd64 ./cmd/cb-ask
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/cb-ask-linux-arm64 ./cmd/cb-ask
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/cb-ask-darwin-amd64 ./cmd/cb-ask
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/cb-ask-darwin-arm64 ./cmd/cb-ask
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/cb-ask-windows-amd64.exe ./cmd/cb-ask
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

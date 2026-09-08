@@ -1,14 +1,14 @@
 .PHONY: all build test clean install
 
-BINARY_NAME=oss-ask
+BINARY_NAME=cb-ask
 
 all: test build
 
 build:
-	go build -o bin/$(BINARY_NAME) ./cmd/oss-ask
+	go build -o bin/$(BINARY_NAME) ./cmd/cb-ask
 
 install:
-	go install ./cmd/oss-ask
+	go install ./cmd/cb-ask
 
 test:
 	go test -v ./...

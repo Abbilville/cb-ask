@@ -1,4 +1,4 @@
-module oss-ask
+module cb-ask
 
 go 1.25.0
 

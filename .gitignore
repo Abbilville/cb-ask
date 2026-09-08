@@ -1,7 +1,12 @@
 # Binaries and build artifacts
-bin/
-dist/
 *.exe
+*.exe~
+bin/*.exe
+bin/cb-ask-linux*
+bin/cb-ask-darwin*
+bin/cb-ask
+!bin/cb-ask.js
+dist/
 *.exe~
 *.dll
 *.so
@@ -20,13 +25,23 @@ Thumbs.db
 *.swo
 *~
 
+# Environment Files
+.env
+.env.local
+.env.*.local
+
 # Test artifacts
 .agents/
 .cursor/
 .codex/
+.antigravity/
 CLAUDE.md
 CODEX.md
 
+.cursorrules
+.windsurfrules
 # Go workspace file
 go.work
 go.work.sum
+
+system-map.*
